@@ -1,0 +1,184 @@
+from urllib.request import urlopen
+from fake_useragent import UserAgent
+from lxml import  etree
+import requests
+
+base_url ="http://tieba.baidu.com"
+headers = {
+        "User-Agent": UserAgent().chrome
+    }
+
+def get_html(url):
+    html = urlopen(url).read().decode("utf-8")
+    return html
+
+response = get_html('http://tieba.baidu.com/f?kw=%E5%B1%B1%E4%B8%9C%E5%B7%A5%E5%95%86%E5%AD%A6%E9%99%A2&ie=utf-8&pn=400')
+e = etree.HTML(response)
+sub_url = e.xpath('//div[@class="threadlist_lz clearfix"]//a[@rel="noreferrer"]/@href')
+#######################################
+###########  取得主题页的url后缀 #########
+#######################################
+zhutiye_url = sub_url[::2]
+
+title = []
+
+for i in range(len(zhutiye_url)):  #len(zhutiye_url)
+    full_url = base_url + zhutiye_url[i]
+
+    response_zhutiye_url = requests.get(full_url, headers = headers)
+    e = etree.HTML(response_zhutiye_url.text)
+    title.append(e.xpath('//h1/text()'))
+
+lou_number = []
+lou_title = []
+new_zhutiye_url = []
+
+for i in range(len(title)):
+    if "名" in  "".join(title[i]) or "财富"in  "".join(title[i]) or "改" in  "".join(title[i]) :
+        # print(i)
+        # print(zhutiye_url[i],":",  title[i])
+
+        new_zhutiye_url.append(zhutiye_url[i])
+        lou_number.append(i)
+        lou_title.append(title[i])
+
+dict_title = dict(zip(lou_number,lou_title))
+
+print(dict_title)
+
+print("------------------------------------------------------\n")
+# print(new_zhutiye_url)
+####################################
+####### 获取 每一个主题的内容 #########
+####################################
+####################################
+
+
+content_of_page = []
+content_string=""
+
+# print(new_zhutiye_url)
+
+
+
+
+for i in range(len( new_zhutiye_url)):
+    url = base_url  +  new_zhutiye_url[i]
+    response = requests.get(url, headers = headers)
+    e = etree.HTML(response.text)
+    one_page_content = e.xpath('//div[@id="j_p_postlist"]//cc/div/text()')
+    # print(one_page_content)
+    print("------------------------------------------------------\n")
+
+    for i in one_page_content:
+        if i =="该楼层疑似违规已被系统折叠 ":
+            one_page_content.remove(i)
+        elif i =="该楼层疑似违规已被系统折叠\xa0":
+            one_page_content.remove(i)
+        else:
+            pass
+
+    print(one_page_content)
+
+    print("------------------------------------------------------\n")
+
+    # content_of_page.append()
+    # content_string = "".join(content_of_page[0])
+    # content_string = content_string.replace("   ", "\n")
+
+# print(content_string)
+
+# with open('tieba_coment.txt', 'a+', encoding='utf-8') as f:
+#     f.write(content_string)
+
+
+
+
+
+
+ ############################
+ ############################
+ ############################
+ ############################
+ ############################
+ ############################
+ ############################
+ ############################
+ ############################
+
+
+
+
+
+
+
+
+
+
+
+
+    # content_of_page.append(e.xpath('//div[@class="d_post_content j_d_post_content clearfix"]/text()'))
+
+
+    # title[i] =
+    # print(title[i])
+
+
+
+#
+#
+# def save_html(filename, html_bytes):
+#
+#     with open(filename,"w", encoding='utf-8') as f:
+#         f.write(html_bytes)
+#
+#
+# def main():
+#     kw = input("请输入需要下载的贴吧名字：")
+#     num = input("请输入需要下载的页码数：")
+#     # print(kw, pn)
+#     print(quote(kw))
+#     url_with_kw = "https://tieba.baidu.com/f?kw={}&ie=utf-8&pn=".format(quote(kw))
+#     print(url_with_kw)
+#     url_full = url_with_kw + str((int(num)-1)*50)
+#     print(url_full)
+#
+#     for pn in range(int(num)):
+#         pn = pn*50
+#         url_full = url_with_kw + str((int(pn) - 1) * 50)
+#         filename = "第" + str(pn) + "页.html"
+#         print("正在下载" + filename)
+#         html_bytes = get_html(url_full)
+#         save_html(filename, html_bytes)
+#
+#     # for pn in range(int(num)):
+#     #     args = {
+#     #         "pn": pn * 50,
+#     #         "kw": content
+#     #
+#     #     }
+#     #
+#     #     filename = "第" + str(pn) + "页.html"
+#     #     args = urlencode(args)
+#     #
+#     #     print("正在下载"+ filename )
+#     #     html_bytes = get_html(base_url2.format(args))
+#     #     save_html(filename, html_bytes)
+#     # https: // tieba.baidu.com / f?kw = % E9 % 97 % AE % E6 % 94 % BF & ie = utf - 8 & pn = 100
+#
+#
+#     # content = input("请输入要下载的内容:")
+#     # num = input("请输入要下载多少页:")
+#     # # base_url = "http://tieba.baidu.com/f?ie=utf-8&{}"
+#     #
+#     # base_url2 = "https://tieba.baidu.com/f?ie=utf-8&{}"
+#     #
+#     #
+#
+#
+#
+#
+#
+# if __name__ == '__main__':
+#     main()
+#
